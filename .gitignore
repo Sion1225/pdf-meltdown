@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# 가상환경
+.venv/
+venv/
+env/
+
+# PyInstaller
+*.spec
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
