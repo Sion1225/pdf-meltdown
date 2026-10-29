@@ -11,11 +11,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Callable
 
 from pypdf import PdfReader, PdfWriter
+
+A4 = (595.0, 842.0)  # pt
 
 # 진행률 콜백: (지금까지 처리한 페이지 수, 전체 페이지 수)
 ProgressFn = Callable[[int, int], None]
@@ -29,14 +31,41 @@ class CancelledError(Exception):
 
 @dataclass(frozen=True)
 class PageRef:
-    """원본 PDF의 특정 페이지에 대한 참조."""
+    """원본 PDF의 특정 페이지(또는 빈 페이지)에 대한 참조."""
 
-    src_path: str          # 원본 PDF 경로
-    src_index: int         # 원본 내 0-기반 페이지 번호
+    src_path: str          # 원본 PDF 경로 (빈 페이지는 "")
+    src_index: int         # 원본 내 0-기반 페이지 번호 (빈 페이지는 -1)
+    rotation: int = 0      # 원본에 더해 시계 방향으로 돌릴 각도 (0/90/180/270)
+    blank_size: tuple[float, float] | None = None  # 빈 페이지면 (너비, 높이) pt
+
+    @classmethod
+    def blank(cls, size: tuple[float, float] = A4) -> "PageRef":
+        return cls("", -1, 0, (float(size[0]), float(size[1])))
+
+    @property
+    def is_blank(self) -> bool:
+        return self.blank_size is not None
+
+    def rotated(self, delta: int) -> "PageRef":
+        return replace(self, rotation=(self.rotation + delta) % 360)
 
     @property
     def label(self) -> str:
+        if self.is_blank:
+            return ""
         return f"{Path(self.src_path).name} p.{self.src_index + 1}"
+
+
+# 암호가 걸린 원본 PDF 의 암호. 열 때 GUI 가 등록하고, 저장/렌더링이 함께 쓴다.
+_PASSWORDS: dict[str, str] = {}
+
+
+def set_password(path: str, password: str) -> None:
+    _PASSWORDS[path] = password
+
+
+def password_for(path: str) -> str | None:
+    return _PASSWORDS.get(path)
 
 
 class ReaderCache:
@@ -49,6 +78,8 @@ class ReaderCache:
         reader = self._readers.get(path)
         if reader is None:
             reader = PdfReader(path)
+            if reader.is_encrypted:
+                reader.decrypt(password_for(path) or "")
             self._readers[path] = reader
         return reader
 
@@ -80,8 +111,7 @@ def export_pages(
     for i, ref in enumerate(pages, start=1):
         if should_cancel and should_cancel():
             raise CancelledError()
-        reader = cache.get(ref.src_path)
-        writer.add_page(reader.pages[ref.src_index])
+        _add_ref(writer, cache, ref)
         if progress:
             progress(i, total)
 
@@ -89,6 +119,15 @@ def export_pages(
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "wb") as f:
         writer.write(f)
+
+
+def _add_ref(writer: PdfWriter, cache: ReaderCache, ref: PageRef) -> None:
+    if ref.is_blank:
+        writer.add_blank_page(*ref.blank_size)
+        return
+    page = writer.add_page(cache.get(ref.src_path).pages[ref.src_index])
+    if ref.rotation:
+        page.rotate(ref.rotation)  # 복제본에만 적용되므로 같은 원본 페이지의 다른 사본엔 영향 없음
 
 
 def split_by_chunk(
@@ -152,7 +191,7 @@ def _write_groups(
                 for p in written:
                     Path(p).unlink(missing_ok=True)
                 raise CancelledError()
-            writer.add_page(cache.get(ref.src_path).pages[ref.src_index])
+            _add_ref(writer, cache, ref)
             done += 1
             if progress:
                 progress(done, total)

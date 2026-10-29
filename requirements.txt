@@ -1,3 +1,5 @@
 PySide6>=6.6
-pypdf>=4.0
-PyMuPDF>=1.23
+# [crypto]: 암호 걸린(AES) PDF 를 읽어 저장할 때 필요
+pypdf[crypto]>=4.0
+# 2.0부터 Markdown 변환(pymupdf4llm)이 함께 설치된다
+PyMuPDF>=2.0,<3

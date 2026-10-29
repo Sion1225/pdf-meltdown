@@ -13,6 +13,26 @@ except ImportError:  # pragma: no cover - 구버전 호환
 from PySide6.QtCore import QObject, QRunnable, Signal
 from PySide6.QtGui import QImage, QPixmap
 
+from .core import password_for
+
+
+def open_doc(path: str) -> fitz.Document:
+    """암호가 등록된 파일이면 인증까지 마친 문서를 연다."""
+    doc = fitz.open(path)
+    if doc.needs_pass:
+        doc.authenticate(password_for(path) or "")
+    return doc
+
+
+def needs_password(path: str) -> bool:
+    with fitz.open(path) as doc:
+        return bool(doc.needs_pass)
+
+
+def check_password(path: str, password: str) -> bool:
+    with fitz.open(path) as doc:
+        return doc.authenticate(password) > 0
+
 
 class ThumbnailRenderer:
     """(파일, 페이지) -> QPixmap 썸네일. 문서 핸들과 결과를 캐싱한다."""
@@ -25,9 +45,13 @@ class ThumbnailRenderer:
     def _doc(self, path: str) -> fitz.Document:
         doc = self._docs.get(path)
         if doc is None:
-            doc = fitz.open(path)
+            doc = open_doc(path)
             self._docs[path] = doc
         return doc
+
+    def page_size(self, src_path: str, src_index: int) -> tuple[float, float]:
+        rect = self._doc(src_path).load_page(src_index).rect
+        return rect.width, rect.height
 
     def render(self, src_path: str, src_index: int, width: int | None = None) -> QPixmap:
         target_w = width or self.max_width
@@ -60,11 +84,8 @@ class ThumbnailRenderer:
 
 def page_count(path: str) -> int:
     """PDF 페이지 수만 빠르게 얻는다 (렌더링 없음)."""
-    doc = fitz.open(path)
-    try:
+    with open_doc(path) as doc:
         return doc.page_count
-    finally:
-        doc.close()
 
 
 # --- 백그라운드(스레드 풀) 썸네일 렌더링 ---------------------------------
@@ -80,7 +101,7 @@ def _worker_doc(path: str) -> fitz.Document:
         docs = _tls.docs = {}
     doc = docs.get(path)
     if doc is None:
-        doc = docs[path] = fitz.open(path)
+        doc = docs[path] = open_doc(path)
     return doc
 
 

@@ -19,3 +19,6 @@ env/
 Thumbs.db
 .idea/
 .vscode/
+
+# 변환 결과물(Markdown 이미지 폴더)
+*_assets/

@@ -1,3 +1,3 @@
-"""PDF Editor application package."""
+"""PDF Meltdown application package."""
 
 __version__ = "0.1.0"

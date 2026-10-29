@@ -29,28 +29,30 @@ QToolBar {{
     background: {SURFACE};
     border: none;
     border-bottom: 1px solid {BORDER};
-    padding: 7px 10px;
-    spacing: 6px;
+    padding: 3px 8px;
+    spacing: 2px;
 }}
 QToolBar::separator {{
     background: {BORDER};
     width: 1px;
-    margin: 4px 8px;
+    margin: 5px 6px;
 }}
 QToolButton {{
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 7px 13px;
+    border-radius: 6px;
+    padding: 3px 8px;
     color: {TEXT};
-    font-weight: 500;
+    font-size: 12px;
 }}
 QToolButton:hover {{
     background: {ACCENT_SOFT};
-    border-color: #dfe3ff;
-    color: {ACCENT};
+    border-color: {ACCENT_SOFT};
+    color: {ACCENT_DARK};
 }}
-QToolButton:pressed {{ background: #e0e4ff; }}
+QToolButton:pressed {{ background: {ACCENT_SOFT}; }}
+QToolButton::menu-indicator {{ image: none; width: 0; }}  /* 메뉴 버튼은 글자에 ▾ 를 붙인다 */
+QMenu::item:disabled {{ color: #b3b0a6; }}
 
 /* 메뉴 */
 QMenuBar {{ background: {SURFACE}; border-bottom: 1px solid {BORDER}; padding: 2px 6px; }}
