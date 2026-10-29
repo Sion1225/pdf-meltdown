@@ -1,118 +1,128 @@
 # PDF Meltdown
 
-**굳어 있는 PDF를 녹여서 다시 쓸 수 있는 Markdown으로.**
+**English** | [한국어](README.ko.md)
 
-PySide6 기반 오프라인 데스크톱 PDF 도구. **한·일·영 문서의 PDF → Markdown 변환**(스캔본 OCR·표·이미지·수식 LaTeX)과
-페이지 정리(합치기·분할·정렬·추출·회전)를 제공합니다. 모든 처리는 내 컴퓨터에서 이루어집니다.
-Windows / macOS 공통 코드입니다(현재 Windows에서 개발·검증).
+**Melt locked-up PDFs down into Markdown you can actually use.**
 
-## 동작 방식
+An offline desktop PDF tool built with PySide6. It converts **PDFs in English, Spanish, Japanese and Korean
+to Markdown** (OCR for scans, tables, images, formulas as LaTeX) and organizes pages
+(merge, split, reorder, extract, rotate). Everything runs on your own computer.
+One codebase for Windows and macOS (currently developed and tested on Windows).
+UI languages: English · Español · 日本語 · 한국어 (follows the OS language on first launch; change it in Settings).
 
-모든 기능은 하나의 모델로 통합되어 있습니다: PDF·이미지를 열면 모든 페이지가
-썸네일 목록에 모입니다. 이 목록을 조작해서 작업하고, 모든 조작은 되돌릴 수 있습니다.
+## How it works
 
-| 기능 | 사용법 |
+Every feature works on one model: when you open PDFs or images, all their pages go into a single
+thumbnail list. You work by editing that list, and every change can be undone.
+
+| Feature | How to use it |
 | --- | --- |
-| **열기** | **열기/추가**, 또는 탐색기에서 PDF·이미지(PNG/JPG 등)를 창에 **끌어다 놓기**. 이미지는 A4 한 페이지가 됨 |
-| **암호 PDF** | 열 때 암호 입력 → 편집 가능. 그냥 저장하면 암호가 풀린 파일로 저장 |
-| **합치기** | 여러 파일을 목록에 모은 뒤 **전체 저장** |
-| **정렬** | 썸네일을 **드래그**해서 순서 변경 |
-| **회전** | **↺ / ↻** (선택 페이지 90°) |
-| **빈 페이지·복제** | **페이지 ▾** → 빈 페이지 삽입 / 페이지 복제 |
-| **되돌리기** | **되돌리기 / 다시 실행** (최대 100단계) |
-| **추출·분할** | **내보내기 ▾** → 선택 추출 / 분할(N페이지씩 또는 선택 페이지 앞에서) |
-| **고급 저장** | **내보내기 ▾ → 고급 저장**: 압축(보통/강함) · 쪽번호 · 워터마크 · 암호(AES-256) |
-| **이미지로 내보내기** | **내보내기 ▾** → PNG/JPG, 72/150/300 DPI |
-| **Markdown 변환** | **내보내기 ▾** → 현재 목록 순서(전체 또는 선택 페이지)대로 `.md` 생성 |
+| **Open** | **Open**, or **drag and drop** PDFs and images (PNG, JPG, …) onto the window. Each image becomes one A4 page |
+| **Password-protected PDFs** | Enter the password when opening, then edit as usual. A plain save writes the file without a password |
+| **Merge** | Collect several files in the list, then **Save** |
+| **Reorder** | **Drag** thumbnails |
+| **Rotate** | **↺ / ↻** (selected pages, 90°) |
+| **Blank / duplicate pages** | **Pages ▾** → Insert blank page / Duplicate pages |
+| **Undo** | **Undo / Redo** (up to 100 steps) |
+| **Extract / split** | **Export ▾** → Extract selected / Split (every N pages, or before selected pages) |
+| **Advanced save** | **Export ▾ → Advanced save**: compression (medium/strong), page numbers, watermark, password (AES-256) |
+| **Export as images** | **Export ▾** → PNG/JPG at 72/150/300 DPI |
+| **PDF → Markdown** | **Export ▾** → writes a `.md` file from the list in its current order (all pages or the selection) |
 
-썸네일을 우클릭하면 회전·복제·삭제 등을 바로 쓸 수 있습니다.
+Right-click a thumbnail for rotate, duplicate, remove and more.
 
-### Markdown 변환
+### PDF → Markdown
 
-페이지마다 알맞은 엔진을 골라 씁니다.
+Each page is handled by the engine that suits it.
 
-- **디지털 페이지**(텍스트 레이어 있음) → PyMuPDF(pymupdf4llm): 제목·목록·단락·표·이미지, 다단 읽기 순서 보존
-- **스캔 페이지**(이미지뿐) → xberg PaddleOCR: 한국어·일본어·영어 OCR. 여러 언어를 고르면 페이지마다 자동 판별
-  - 스캐너가 미리 넣어 둔 보이지 않는 OCR 층(전면 이미지 + 투명 글자)은 품질을 믿을 수 없어 다시 OCR 합니다.
-- **수식 → LaTeX**(선택, 페이지당 수 초 추가): xberg LaTeX-OCR 로 수식을 찾아, 단독 줄 수식은 `$$…$$`,
-  문장 속 수식은 `$…$` 로 넣습니다. 스캔·디지털 페이지 모두 지원(문장 속 짧은 인라인 수식은 감지되지 않을 수 있음).
-- 옵션: OCR 자동/끄기/전체, OCR 모델 빠름/정확, 이미지 별도 폴더/md에 포함/제외, 스캔 원본 이미지 첨부, 페이지 구분선
-- 이미지는 `문서명_assets/page003_01.png` 형태로 저장되고 상대경로로 링크됩니다.
+- **Digital pages** (with a text layer) → PyMuPDF (pymupdf4llm): headings, lists, paragraphs, tables and images,
+  keeping the reading order of multi-column layouts
+- **Scanned pages** (images only) → xberg PaddleOCR: English, Spanish, Japanese and Korean OCR.
+  If you select several languages, the language is detected per page
+  - Invisible OCR layers added by scanners (a full-page image with transparent text) are unreliable, so these pages are OCR'd again.
+- **Formulas → LaTeX** (optional, adds a few seconds per page): xberg LaTeX-OCR finds formulas. A formula on its own line
+  becomes `$$…$$`, and one inside a sentence becomes `$…$`. Works on both scanned and digital pages (short inline formulas
+  inside sentences may be missed).
+- Options: OCR auto/off/all pages, OCR model fast/accurate, images in a folder/embedded/excluded,
+  attach the original scan image, page separators
+- Images are saved as `name_assets/page003_01.png` and linked with relative paths.
 
-알려진 한계: 테두리 없는 표는 일반 텍스트로 나올 수 있고, 병합 셀은 칸이 복제됩니다.
-스캔 페이지 속 사진은 따로 잘라내지 못하므로 필요하면 "스캔 원본 이미지 첨부"를 켜세요.
-Markdown은 위치를 표현할 수 없어 시각적 배치가 아닌 구조(제목·단락·목록·표·순서)를 보존합니다.
+Known limitations: tables without borders may come out as plain text, and merged cells are duplicated.
+Photos inside scanned pages are not cropped out separately; turn on "Also attach scanned page images" if you need them.
+Markdown cannot express position, so the output keeps the structure (headings, paragraphs, lists, tables, order),
+not the visual layout.
 
-### 성능 / 반응성
+### Performance
 
-- **열기는 즉시**: 페이지 수만 읽어 회색 placeholder로 목록을 바로 채우고, 실제 썸네일은
-  백그라운드 스레드 풀에서 **병렬 렌더링**됩니다(대용량 PDF에서도 UI가 멈추지 않음).
-- 로딩 중에는 상태바에 **진행률 바**가 표시되고, 완료되는 페이지부터 썸네일이 채워집니다.
-- 썸네일은 220px로 한 번만 렌더링 후 표시 크기만 조절하므로, 크기 변경은 즉각적입니다.
-- 저장·추출·분할·변환은 백그라운드에서 실행되며 진행률 다이얼로그에서 취소할 수 있습니다.
+- **Opening is instant**: the list fills with gray placeholders right away, and real thumbnails are rendered
+  **in parallel** on a background thread pool, so the UI never freezes, even on very large PDFs.
+- While loading, a **progress bar** appears in the status bar, and thumbnails fill in as each page finishes.
+- Thumbnails are rendered once at 220 px and only scaled for display, so resizing is immediate.
+- Save, extract, split and convert run in the background with a progress dialog you can cancel.
 
-## 설치
+## Installation
 
 ```powershell
 git clone https://github.com/Sion1225/pdf-meltdown.git
 cd pdf-meltdown
 python -m pip install -r requirements.txt
-# 스캔 페이지 OCR까지 쓰려면 (선택)
+# Optional: OCR for scanned pages and formula recognition
 python -m pip install -r requirements-markdown.txt
 ```
 
-## 실행
+## Running
 
 ```powershell
 python run.py
 ```
 
-## 단축키
+## Keyboard shortcuts
 
-| 키 | 동작 |
+| Key | Action |
 | --- | --- |
-| Ctrl+O | 열기/추가 |
-| Ctrl+Z / Ctrl+Y | 되돌리기 / 다시 실행 |
-| Ctrl+L / Ctrl+R | 왼쪽 / 오른쪽 회전 |
-| Ctrl+B | 빈 페이지 삽입 |
-| Ctrl+D | 페이지 복제 |
-| Delete | 선택 삭제 |
-| Ctrl+S | 전체 저장(합치기) |
-| Ctrl+Shift+E | 고급 저장 |
-| Ctrl+E | 선택 추출 |
-| Ctrl+Shift+S | 분할 |
-| Ctrl+M | Markdown 변환 |
+| Ctrl+O | Open / add |
+| Ctrl+Z / Ctrl+Y | Undo / redo |
+| Ctrl+L / Ctrl+R | Rotate left / right |
+| Ctrl+B | Insert blank page |
+| Ctrl+D | Duplicate pages |
+| Delete | Remove selected |
+| Ctrl+S | Save all (merge) |
+| Ctrl+Shift+E | Advanced save |
+| Ctrl+E | Extract selected |
+| Ctrl+Shift+S | Split |
+| Ctrl+M | Convert to Markdown |
 
-macOS에서는 Ctrl 대신 ⌘ 키입니다.
+On macOS, use ⌘ instead of Ctrl.
 
-## 구조
+## Project structure
 
 ```
 pdf-meltdown/
-  run.py              # 실행 진입점
+  run.py              # entry point
   app/
-    core.py           # 페이지 모델(PageRef: 회전·빈 페이지)과 저장/분할 (pypdf) — GUI 비의존
-    postprocess.py    # 고급 저장: 압축·쪽번호·워터마크·암호 (PyMuPDF)
-    images.py         # 이미지 → PDF 페이지, 페이지 → 이미지 파일
-    render.py         # 썸네일 렌더링, 암호 PDF 열기 (PyMuPDF)
-    jobs.py           # 백그라운드 출력 작업(진행률/취소)
-    convert/          # PDF → Markdown (pipeline: 페이지별 엔진 선택, native: PyMuPDF, ocr: xberg,
-                      #                 formulas: 수식 → LaTeX)
-    dialogs.py        # 고급 저장 / 이미지 내보내기 다이얼로그
+    core.py           # page model (PageRef: rotation, blank pages) and save/split (pypdf), GUI-independent
+    postprocess.py    # advanced save: compression, page numbers, watermark, password (PyMuPDF)
+    images.py         # image → PDF page, page → image file
+    render.py         # thumbnail rendering, opening encrypted PDFs (PyMuPDF)
+    jobs.py           # background export jobs (progress/cancel)
+    convert/          # PDF → Markdown (pipeline: per-page engine choice, native: PyMuPDF, ocr: xberg,
+                      #                 formulas: formulas → LaTeX)
+    dialogs.py        # advanced save / image export dialogs
+    i18n.py           # UI strings (en, es, ja, ko)
     main_window.py    # GUI (PySide6)
 ```
 
-## 라이선스
+## License
 
-PyMuPDF가 AGPL-3.0이므로 이 프로젝트도 [AGPL-3.0](LICENSE)으로 배포합니다.
+PyMuPDF is licensed under AGPL-3.0, so this project is distributed under [AGPL-3.0](LICENSE) as well.
 
-## 배포 (선택)
+## Packaging (optional)
 
-PyInstaller로 단일 실행 파일을 만들 수 있습니다.
+You can build a standalone app with PyInstaller.
 
 ```powershell
 python -m pip install pyinstaller
 pyinstaller --noconfirm --windowed --name "PDF Meltdown" run.py
 ```
 
-macOS에서도 동일하게 `.app` 번들을 생성할 수 있습니다(해당 OS에서 빌드 필요).
+The same command builds a `.app` bundle on macOS (it must be built on that OS).

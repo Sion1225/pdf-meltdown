@@ -6,7 +6,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, QSettings, QThreadPool, QTimer, Signal
+from PySide6.QtCore import QLocale, QSize, Qt, QSettings, QThreadPool, QTimer, Signal
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -57,8 +57,9 @@ from .core import (
     split_by_chunk,
 )
 from .convert import ConvertOptions, convert_pdf, ocr_available
+from .convert.options import OCR_LANGUAGES
 from .dialogs import ImageExportDialog, SaveOptionsDialog
-from .i18n import LANGUAGES, tr
+from .i18n import DEFAULT_LANGUAGE, LANGUAGES, TRANSLATIONS, tr
 from .images import IMAGE_EXTS, export_page_images, image_to_pdf, is_image
 from .jobs import ExportSignals, ExportTask
 from .postprocess import postprocess
@@ -300,7 +301,7 @@ class ConvertDialog(QDialog):
             [("fast", "conv_quality_fast"), ("accurate", "conv_quality_accurate")],
             "convert/ocr_quality", "fast",
         )
-        saved_langs = str(settings.value("convert/ocr_langs", "ko,ja,en")).split(",")
+        saved_langs = str(settings.value("convert/ocr_langs", ",".join(OCR_LANGUAGES))).split(",")
         self.lang_checks: dict[str, QCheckBox] = {}
         lang_row = QHBoxLayout()
         for code, name in LANGUAGES:  # 언어 이름은 원어 그대로
@@ -407,7 +408,11 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.settings = QSettings("PDFEditorApp", "PDFEditor")
-        tr.set_language(str(self.settings.value("language", "ko")))
+        # 처음 실행이면 OS 언어를 따르고, 지원하지 않는 언어면 영어
+        system_lang = QLocale.system().name().split("_")[0]
+        if system_lang not in TRANSLATIONS:
+            system_lang = DEFAULT_LANGUAGE
+        tr.set_language(str(self.settings.value("language", system_lang)))
         self.preview_pos = str(self.settings.value("preview_pos", "left"))
 
         self.resize(1040, 680)

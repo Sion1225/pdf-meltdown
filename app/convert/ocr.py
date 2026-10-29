@@ -19,8 +19,8 @@ from .native import clean_markdown
 _MODEL_TIER = {"fast": "mobile", "accurate": "server"}
 _HANGUL = re.compile(r"[ᄀ-ᇿ㄰-㆏가-힯]")
 _JAPANESE = re.compile(r"[぀-ヿ㐀-䶿一-鿿]")
-_LATIN = re.compile(r"[A-Za-z]")
-_SCRIPT = {"ko": _HANGUL, "ja": _JAPANESE, "en": _LATIN}
+_LATIN = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
+_SCRIPT = {"ko": _HANGUL, "ja": _JAPANESE, "en": _LATIN, "es": _LATIN}
 # xberg 가 페이지 래스터를 이미지로 내보내며 남기는 자리표시자
 _IMAGE_PLACEHOLDER = re.compile(r"^!\[[^\]]*\]\(image_\d+\.\w+\)\s*$", re.MULTILINE)
 
@@ -39,6 +39,7 @@ class OcrEngine:
     def __init__(self, languages: tuple[str, ...], quality: str = "fast") -> None:
         langs = [l for l in languages if l in _SCRIPT] or ["en"]
         # 한국어·일본어 모델은 영문/숫자도 읽으므로, 둘 중 하나라도 있으면 영어 모델은 따로 돌리지 않는다.
+        # 스페인어는 영어(라틴) 모델이 악센트·ñ 까지 읽으므로 영어 모델을 그대로 쓴다.
         cjk = [l for l in langs if l in ("ko", "ja")]
         self.candidates = cjk or ["en"]
         self.tier = _MODEL_TIER.get(quality, "mobile")

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 OCR_MODES = ("auto", "off", "force")          # 자동(필요한 페이지만) / 끄기 / 모든 페이지
 OCR_QUALITIES = ("fast", "accurate")          # 빠름(mobile 모델) / 정확(server 모델)
-OCR_LANGUAGES = ("ko", "ja", "en")
+OCR_LANGUAGES = ("en", "es", "ja", "ko")
 IMAGE_MODES = ("folder", "embed", "none")     # 별도 폴더 / md에 포함 / 제외
 
 
