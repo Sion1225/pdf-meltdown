@@ -191,7 +191,7 @@ class ImageExportDialog(QDialog):
         self.cmb_scope = scope_combo(total, selected)
         self.cmb_format = _combo([("png", "PNG"), ("jpg", "JPG")],
                                  str(settings.value("images/format", "png")))
-        self.cmb_dpi = _combo([(str(v), f"{v} DPI") for v in (72, 150, 300)],
+        self.cmb_dpi = _combo([(str(v), f"{v} DPI") for v in (150, 300, 500)],
                               str(settings.value("images/dpi", "150")))
 
         form = QFormLayout()

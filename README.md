@@ -26,7 +26,7 @@ thumbnail list. You work by editing that list, and every change can be undone.
 | **Undo** | **Undo / Redo** (up to 100 steps) |
 | **Extract / split** | **Export ▾** → Extract selected / Split (every N pages, or before selected pages) |
 | **Advanced save** | **Export ▾ → Advanced save**: compression (medium/strong), page numbers, watermark, password (AES-256) |
-| **Export as images** | **Export ▾** → PNG/JPG at 72/150/300 DPI |
+| **Export as images** | **Export ▾** → PNG/JPG at 150/300/500 DPI |
 | **PDF → Markdown** | **Export ▾** → writes a `.md` file from the list in its current order (all pages or the selection) |
 
 Right-click a thumbnail for rotate, duplicate, remove and more.
