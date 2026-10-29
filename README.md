@@ -1,8 +1,8 @@
 # PDF Meltdown
 
-**English** | [한국어](README.ko.md)
+**English** | [日本語](README.ja.md) | [한국어](README.ko.md)
 
-**Melt locked-up PDFs down into Markdown you can actually use.**
+**Merge, split and reorder your PDFs — or melt them down into Markdown you can actually use.**
 
 An offline desktop PDF tool built with PySide6. It converts **PDFs in English, Spanish, Japanese and Korean
 to Markdown** (OCR for scans, tables, images, formulas as LaTeX) and organizes pages

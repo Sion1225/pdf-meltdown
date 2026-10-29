@@ -1,8 +1,8 @@
 # PDF Meltdown
 
-[English](README.md) | **한국어**
+[English](README.md) | [日本語](README.ja.md) | **한국어**
 
-**굳어 있는 PDF를 녹여서 다시 쓸 수 있는 Markdown으로.**
+**PDF를 합치고, 나누고, 정리하고 — 녹여서 바로 쓸 수 있는 Markdown으로.**
 
 PySide6 기반 오프라인 데스크톱 PDF 도구. **영어·스페인어·일본어·한국어 문서의 PDF → Markdown 변환**(스캔본 OCR·표·이미지·수식 LaTeX)과
 페이지 정리(합치기·분할·정렬·추출·회전)를 제공합니다. 모든 처리는 내 컴퓨터에서 이루어집니다.
